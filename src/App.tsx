@@ -1,10 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import { supabaseClient } from './api/supabaseClient'
 
 function App() {
   const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    console.log(supabaseClient);
+  }, []);
 
   return (
     <div className="App">
