@@ -8,7 +8,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    console.log(supabaseClient);
+    console.log("pls work", supabaseClient);
   }, []);
 
   return (
