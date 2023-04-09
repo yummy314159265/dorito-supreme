@@ -9,6 +9,7 @@ function App() {
 
   useEffect(() => {
     console.log(supabaseClient);
+    console.log('hi!');
   }, []);
 
   return (
