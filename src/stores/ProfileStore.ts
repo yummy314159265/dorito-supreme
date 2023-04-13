@@ -16,28 +16,44 @@ export const useProfileStore = create<ProfileState>((set) => ({
   status: "pending",
   error: null,
   getProfile: async () => {
-    let profile: Profile[];
-
-    try {
-      profile = (await supabaseClient.from("profiles").select())
-        .data as Profile[];
-    } catch (ex: any) {
-      set((state) => {
-        return {
-          ...state,
-          error: ex.message ?? ex.toString()
-        };
-      });
-
-      return;
-    }
-
     set((state) => {
       return {
         ...state,
-        profile: profile[0]
+        profile: null,
+        status: "loading",
+        error: null
       };
     });
+
+    try {
+      const { data, error } = await supabaseClient.from("profiles").select();
+
+      if (error !== null) {
+        throw new Error("Error retrieving profile: " + error.message);
+      }
+
+      set((state) => {
+        return {
+          ...state,
+          status: "success",
+          error: null,
+          profile: (data as Profile[])[0]
+        };
+      });
+    } catch (ex: unknown) {
+      console.error(ex);
+
+      set((state) => {
+        return {
+          ...state,
+          status: "error",
+          error:
+            (ex as Error).message ??
+            (ex as object).toString() ??
+            "Error retrieving profile"
+        };
+      });
+    }
   },
   resetProfile: () =>
     set((state) => {
