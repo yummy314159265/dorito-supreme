@@ -1,4 +1,4 @@
-import { create } from "zustand/react";
+import { create } from "zustand";
 import { Message } from "../types/models/Message";
 import { StateStatus } from "../types/utils/StateStatus";
 import { supabaseClient } from "../api/supabaseClient";
@@ -8,6 +8,7 @@ export interface MessageState {
   statuses: Record<string, StateStatus>;
   errors: Record<string, string | null>;
   getMessages: (channelId: string) => void;
+  resetMessages: () => void;
 }
 
 export const useMessageStore = create<MessageState>((set) => ({
@@ -64,5 +65,15 @@ export const useMessageStore = create<MessageState>((set) => ({
         };
       });
     }
+  },
+  resetMessages: () => {
+    set((state) => {
+      return {
+        ...state,
+        messages: {},
+        statuses: {},
+        errors: {}
+      };
+    });
   }
 }));

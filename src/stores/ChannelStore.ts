@@ -1,4 +1,4 @@
-import { create } from "zustand/react";
+import { create } from "zustand";
 import { Channel } from "../types/models/Channel";
 import { StateStatus } from "../types/utils/StateStatus";
 import { supabaseClient } from "../api/supabaseClient";
