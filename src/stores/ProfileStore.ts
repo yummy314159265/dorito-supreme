@@ -7,7 +7,7 @@ export interface ProfileState {
   profile: Profile | null;
   status: StateStatus;
   error: string | null;
-  getProfile: () => void;
+  getProfile: (id: string) => void;
   resetProfile: () => void;
 }
 
@@ -15,7 +15,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
   profile: null,
   status: "pending",
   error: null,
-  getProfile: async () => {
+  getProfile: async (id) => {
     set((state) => {
       return {
         ...state,
@@ -26,7 +26,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
     });
 
     try {
-      const { data, error } = await supabaseClient.from("profiles").select();
+      const { data, error } = await supabaseClient.from("profiles").select().eq("id", id);
 
       if (error !== null) {
         throw new Error("Error retrieving profile: " + error.message);
