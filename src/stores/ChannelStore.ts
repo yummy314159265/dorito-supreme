@@ -14,6 +14,7 @@ export interface ChannelState {
   getJoinedChannels: () => void;
   getOwnedChannels: () => void;
   getAllChannels: () => void;
+  resetChannels: () => void;
 }
 
 export const useChannelStore = create<ChannelState>((set) => ({

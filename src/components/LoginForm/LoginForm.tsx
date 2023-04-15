@@ -2,52 +2,38 @@ import { FC } from "react";
 import { useAuthStore } from "../../stores/AuthStore";
 import { FieldValues, useForm } from "react-hook-form";
 
-export const AuthForm: FC = () => {
-  const createUser = useAuthStore((state) => state.createUser);
+export const LoginForm: FC = () => {
+  const login = useAuthStore((state) => state.login);
+
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors }
   } = useForm();
 
   const onSubmit = (data: FieldValues) => {
-    console.log(data?.["username"]);
-    createUser({
-      email: data?.["email"],
-      password: data?.["password"],
-      username: data?.["username"]
-    });
+    login({ email: data?.["email"], password: data?.["password"] });
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div>
-        <label htmlFor="email">Email</label>
+        <label htmlFor="email">Email: </label>
         <input
-          placeholder="Email"
+          placeholder="email"
           type="text"
           {...register("email", { required: true })}
         />
         {errors?.["email"] && <span>Required</span>}
       </div>
       <div>
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Password: </label>
         <input
-          placeholder="Password"
+          placeholder="password"
           type="password"
           {...register("password", { required: true })}
         />
         {errors?.["password"] && <span>Required</span>}
-      </div>
-      <div>
-        <label htmlFor="username">Username</label>
-        <input
-          placeholder="Username"
-          type="text"
-          {...register("username", { required: true })}
-        />
-        {errors?.["username"] && <span>Required</span>}
       </div>
       <button type="submit">Submit</button>
     </form>

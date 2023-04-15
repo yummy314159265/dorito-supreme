@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { StateStatus } from "../types/utils/StateStatus";
 import { supabaseClient } from "../api/supabaseClient";
 import { CreateUserDto } from "../types/dtos/createUserDto";
+import { LoginDto } from "../types/dtos/loginDto";
 
 export interface AuthState {
   authenticated: boolean;
@@ -12,8 +13,9 @@ export interface AuthState {
   signupStatus: StateStatus;
   signupError: string | null;
   createUser: (request: CreateUserDto) => void;
-  login: (email: string, password: string) => void;
+  login: (request: LoginDto) => void;
   checkAuthentication: () => void;
+  logout: () => void;
   resetAuth: () => void;
 }
 
@@ -43,7 +45,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         password,
         options: {
           data: {
-            username,
+            username
           }
         }
       });
@@ -72,12 +74,12 @@ export const useAuthStore = create<AuthState>((set) => ({
           signupError:
             (ex as Error)?.message ??
             (ex as object).toString() ??
-            "Error signing in"
+            "Error signing up"
         };
       });
     }
   },
-  login: async (email, password) => {
+  login: async ({ email, password }) => {
     set((state) => {
       return {
         ...state,
@@ -96,7 +98,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       });
 
       if (error !== null) {
-        throw new Error("Error signing in: " + error.message);
+        throw new Error("Error logging in: " + error.message);
       }
 
       set((state) => {
@@ -169,7 +171,45 @@ export const useAuthStore = create<AuthState>((set) => ({
           loginError:
             (ex as Error)?.message ??
             (ex as object)?.toString() ??
-            "Error logging in"
+            "Error checking authentication"
+        };
+      });
+    }
+  },
+  logout: async () => {
+    try {
+      const { error } = await supabaseClient.auth.signOut();
+
+      if (error !== null) {
+        throw new Error("Error logging out: " + error.message);
+      }
+
+      set((state) => {
+        return {
+          ...state,
+          authenticated: false,
+          username: null,
+          userId: null,
+          loginStatus: "pending",
+          loginError: null,
+          signupStatus: "pending",
+          signupError: null
+        };
+      });
+    } catch (ex: unknown) {
+      console.error(ex);
+
+      set((state) => {
+        return {
+          ...state,
+          authenticated: false,
+          username: null,
+          userId: null,
+          loginStatus: "error",
+          loginError:
+            (ex as Error)?.message ??
+            (ex as object)?.toString() ??
+            "Error logging out"
         };
       });
     }
