@@ -26,18 +26,23 @@ export const useProfileStore = create<ProfileState>((set) => ({
     });
 
     try {
-      const { data, error } = await supabaseClient.from("profiles").select().eq("id", id);
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select()
+        .eq("id", id);
 
       if (error !== null) {
         throw new Error("Error retrieving profile: " + error.message);
       }
 
+      const profile = (data as Profile[])[0];
+
       set((state) => {
         return {
           ...state,
+          profile,
           status: "success",
-          error: null,
-          profile: (data as Profile[])[0]
+          error: null
         };
       });
     } catch (ex: unknown) {
