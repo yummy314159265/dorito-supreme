@@ -7,15 +7,20 @@ export const Navbar: FC = () => {
   const authenticated = useAuthStore((state) => state.authenticated);
 
   return (
-    <nav className="flex justify-between">
-      <Link to="/">Home</Link>
-      {!authenticated && (
-        <>
-          <Link to="/signup">Signup</Link>
-          <Link to="/login">Login</Link>
-        </>
-      )}
-      {authenticated && <LogoutButton />}
+    <nav className="flex justify-between items-center h-12 pl-2 pr-2">
+      <Link to="/">
+        <span className="text-2xl">Home</span>
+      </Link>
+      <div className="text-xl">
+        {!authenticated && (
+          <>
+            <Link to="/signup">Signup</Link>
+            &nbsp;
+            <Link to="/login">Login</Link>
+          </>
+        )}
+        {authenticated && <LogoutButton />}
+      </div>
     </nav>
   );
 };

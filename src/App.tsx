@@ -14,9 +14,9 @@ export const App: FC = (): JSX.Element => {
   }, []);
 
   return (
-    <div>
+    <div className="h-screen flex flex-col">
       <Navbar />
-      <div>
+      <div className="flex-grow pl-2 pr-2">
         <Outlet></Outlet>
       </div>
     </div>
