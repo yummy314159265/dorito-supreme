@@ -2,6 +2,7 @@ import { FC } from "react";
 import { useAuthStore } from "../../stores/AuthStore";
 import { FieldValues, useForm } from "react-hook-form";
 import { useChannelStore } from "../../stores/ChannelStore";
+import { Input } from "../../styled/Input";
 
 export const CreateChannelForm: FC = () => {
   const authenticated = useAuthStore((state) => state.authenticated);
@@ -28,7 +29,7 @@ export const CreateChannelForm: FC = () => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <label htmlFor="name">Create a channel: </label>
-      <input
+      <Input
         placeholder="name"
         type="text"
         {...register("name", { required: true })}

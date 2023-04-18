@@ -1,6 +1,3 @@
-import { styled, theme } from "twin.macro";
+import tw from "twin.macro";
 
-export const Input = styled.input({
-  color: theme`colors.butterflybush`,
-  backgroundColor: theme`colors.desertsand`
-});
+export const Input = tw.input`border rounded h-10 p-2`;

@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { useAuthStore } from "../../stores/AuthStore";
 import { FieldValues, useForm } from "react-hook-form";
+import { Input } from "../../styled/Input";
 
 export const SignupForm: FC = () => {
   const createUser = useAuthStore((state) => state.createUser);
@@ -22,7 +23,7 @@ export const SignupForm: FC = () => {
     <form onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="email">Email: </label>
-        <input
+        <Input
           placeholder="Email"
           type="text"
           {...register("email", { required: true })}
@@ -31,7 +32,7 @@ export const SignupForm: FC = () => {
       </div>
       <div>
         <label htmlFor="password">Password: </label>
-        <input
+        <Input
           placeholder="Password"
           type="password"
           {...register("password", { required: true })}
@@ -40,7 +41,7 @@ export const SignupForm: FC = () => {
       </div>
       <div>
         <label htmlFor="username">Username: </label>
-        <input
+        <Input
           placeholder="Username"
           type="text"
           {...register("username", { required: true })}
