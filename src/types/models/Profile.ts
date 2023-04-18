@@ -2,6 +2,6 @@ import { Entity } from "./Entity";
 
 export interface Profile extends Entity {
   id: string;
-  updatedAt: Date;
+  updated_at: string;
   username: string;
 }

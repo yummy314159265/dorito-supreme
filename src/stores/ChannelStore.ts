@@ -4,6 +4,7 @@ import { StateStatus } from "../types/utils/StateStatus";
 import { supabaseClient } from "../api/supabaseClient";
 import { CreateChannelDto } from "../types/dtos/createChannelDto";
 import { JoinChannelDto } from "../types/dtos/joinChannelDto";
+import { ChannelProfile } from "../types/models/ChannelProfile";
 
 export interface ChannelState {
   currentChannel: Channel | null;
@@ -46,29 +47,45 @@ export const useChannelStore = create<ChannelState>((set) => ({
         ...state,
         statuses: {
           ...state.statuses,
-          ["createChannel"]: "loading"
+          ["createChannel"]: "loading",
+          ["joinChannel"]: "loading"
         },
         errors: {
           ...state.statuses,
-          ["createChannel"]: null
+          ["createChannel"]: null,
+          ["joinChannel"]: null
         }
       };
     });
 
     try {
-      const { data, error } = await supabaseClient
+      const create = await supabaseClient
         .from("channels")
         .insert({ name, owner_id })
         .select();
 
-      if (error !== null) {
-        throw new Error("Error creating channel: " + error.message);
+      if (create.error !== null) {
+        throw new Error("Error creating channel: " + create.error.message);
+      }
+
+      const join = await supabaseClient
+        .from("joined_channels")
+        .insert({
+          channel_id: create.data[0].id,
+          profile_id: owner_id
+        })
+        .select();
+
+      if (join.error !== null) {
+        throw new Error("Error joining created channel: " + join.error.message);
       }
 
       set((state) => {
         return {
           ...state,
-          ownedChannels: [...state.ownedChannels, ...(data as Channel[])],
+          ownedChannels: [...state.ownedChannels, create.data[0]],
+          joinedChannels: [...state.joinedChannels, create.data[0]],
+          allChannels: [...state.allChannels, create.data[0]],
           statuses: {
             ...state.statuses,
             ["createChannel"]: "success"
@@ -185,18 +202,25 @@ export const useChannelStore = create<ChannelState>((set) => ({
     });
 
     try {
+      // THIS NEEDS FIXED - RETRIEVE CHANNELS FROM CHANNEL PROFILES
       const { data, error } = await supabaseClient
-        .from("channel_profiles")
-        .select();
+        .from("joined_channels")
+        .select(`channels(*)`);
 
       if (error !== null) {
         throw new Error("Error retrieving joined channels: " + error.message);
       }
 
+      if (data === null) {
+        throw new Error("Data is null");
+      }
+
+      console.log(data);
+
       set((state) => {
         return {
           ...state,
-          joinedChannels: data as Channel[],
+          joinedChannels: [...state.joinedChannels],
           statuses: {
             ...state.statuses,
             ["getJoinedChannels"]: "success"

@@ -1,8 +1,8 @@
 import { Entity } from "./Entity";
 
 export interface Message extends Entity {
-  channelId: string;
-  senderProfileId: string;
+  channel_id: string;
+  sender_profile_id: string;
   content: string;
-  updatedAt: Date;
+  updated_at: string;
 }
