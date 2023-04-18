@@ -2,6 +2,7 @@ import { FC, useEffect } from "react";
 import { useProfileStore } from "../../stores/ProfileStore";
 import { useAuthStore } from "../../stores/AuthStore";
 import { CreateChannelForm } from "../../components/CreateChannelForm/CreateChannelForm";
+import { ChannelList } from "../../components/ChannelList/ChannelList";
 
 export const Home: FC = () => {
   const profile = useProfileStore((state) => state.profile);
@@ -23,6 +24,7 @@ export const Home: FC = () => {
     <>
       <div>Welcome, {profile?.username ?? "guest"}</div>
       {authenticated && <CreateChannelForm />}
+      <ChannelList />
     </>
   );
 };

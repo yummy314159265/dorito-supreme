@@ -9,7 +9,7 @@ export const Navbar: FC = () => {
   return (
     <nav className="flex justify-between items-center h-12 pl-2 pr-2">
       <Link to="/">
-        <span className="text-2xl">Home</span>
+        <span className="text-2xl">Gay Chat</span>
       </Link>
       <div className="text-xl">
         {!authenticated && (
