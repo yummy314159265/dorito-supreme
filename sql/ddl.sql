@@ -2,10 +2,10 @@ DROP TABLE IF EXISTS channelProfiles;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS channels; 
 
-CREATE TABLE "channelProfiles"(
-    "id" UUID NOT NULL,
-    "channel_id" UUID NOT NULL,
-    "profile_id" UUID NOT NULL
+CREATE TABLE joined_channels (
+  channel_id UUID REFERENCES public.channels (id),
+  profile_id UUID REFERENCES public.profiles (id),
+  PRIMARY KEY (channel_id, profile_id)
 );
 ALTER TABLE
     "channelprofiles" ADD PRIMARY KEY("id");

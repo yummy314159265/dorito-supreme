@@ -1,6 +1,6 @@
 import { Entity } from "./Entity";
 
 export interface ChannelProfile extends Entity {
-  channelId: string;
-  profileId: string;
+  channel_id: string;
+  profile_id: string;
 }

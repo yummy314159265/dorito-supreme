@@ -7,7 +7,7 @@ export interface MessageState {
   messages: Record<string, Message[]>;
   statuses: Record<string, StateStatus>;
   errors: Record<string, string | null>;
-  getMessages: (channelId: string) => void;
+  getMessages: (channel_id: string) => void;
   resetMessages: () => void;
 }
 
@@ -15,17 +15,17 @@ export const useMessageStore = create<MessageState>((set) => ({
   messages: {},
   statuses: {},
   errors: {},
-  getMessages: async (channelId) => {
+  getMessages: async (channel_id) => {
     set((state) => {
       return {
         ...state,
         statuses: {
           ...state.statuses,
-          [channelId]: "loading"
+          [channel_id]: "loading"
         },
         errors: {
           ...state.errors,
-          [channelId]: null
+          [channel_id]: null
         }
       };
     });
@@ -34,11 +34,11 @@ export const useMessageStore = create<MessageState>((set) => ({
       const { data, error } = await supabaseClient
         .from("messages")
         .select()
-        .eq("channel_id", channelId);
+        .eq("channel_id", channel_id);
 
       if (error !== null) {
         throw new Error(
-          `Error retrieving messages for channel ID ${channelId}: ${error.message}`
+          `Error retrieving messages for channel ID ${channel_id}: ${error.message}`
         );
       }
 
@@ -47,7 +47,7 @@ export const useMessageStore = create<MessageState>((set) => ({
           ...state,
           messages: {
             ...state.messages,
-            [channelId]: data as Message[]
+            [channel_id]: data
           }
         };
       });
@@ -57,10 +57,10 @@ export const useMessageStore = create<MessageState>((set) => ({
           ...state,
           errors: {
             ...state.errors,
-            [channelId]:
+            [channel_id]:
               (ex as Error)?.message ??
               (ex as object).toString() ??
-              `Error retrieving messages for channel ID ${channelId}`
+              `Error retrieving messages for channel ID ${channel_id}`
           }
         };
       });
