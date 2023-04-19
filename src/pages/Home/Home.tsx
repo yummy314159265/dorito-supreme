@@ -3,16 +3,17 @@ import { useProfileStore } from "../../stores/ProfileStore";
 import { useAuthStore } from "../../stores/AuthStore";
 import { CreateChannelForm } from "../../components/CreateChannelForm/CreateChannelForm";
 import { ChannelList } from "../../components/ChannelList/ChannelList";
+import { useChannelStore } from "../../stores/ChannelStore";
+import { MessageList } from "../../components/MessageList/MessageList";
 
 export const Home: FC = () => {
-  const profile = useProfileStore((state) => state.profile);
   const getProfile = useProfileStore((state) => state.getProfile);
   const userId = useAuthStore((state) => state.userId);
+  const profile = useProfileStore((state) => state.profiles).find(p => p.id === userId);
   const authenticated = useAuthStore((state) => state.authenticated);
+  const currentChannel = useChannelStore(state => state.currentChannel);
 
   useEffect(() => {
-    console.log(userId);
-
     if (userId === null) {
       return;
     }
@@ -25,6 +26,7 @@ export const Home: FC = () => {
       <div>Welcome, {profile?.username ?? "guest"}</div>
       {authenticated && <CreateChannelForm />}
       <ChannelList />
+      <MessageList channel={currentChannel} />
     </>
   );
 };

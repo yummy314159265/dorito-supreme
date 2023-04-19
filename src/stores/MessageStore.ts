@@ -16,6 +16,7 @@ export const useMessageStore = create<MessageState>((set) => ({
   statuses: {},
   errors: {},
   getMessages: async (channel_id) => {
+    console.log("in get messages");
     set((state) => {
       return {
         ...state,
@@ -42,16 +43,28 @@ export const useMessageStore = create<MessageState>((set) => ({
         );
       }
 
+      console.log(data);
+      console.log("before set state");
+
       set((state) => {
+        const messageIds = state.messages.channel_id?.map((m) => m.id) ?? [];
+
+        // console.log("in set state");
+
         return {
           ...state,
           messages: {
             ...state.messages,
-            [channel_id]: data
+            [channel_id]: [
+              ...(state.messages.channel_id ?? []),
+              ...data.filter((d) => !messageIds.includes(d.id))
+            ]
           }
         };
       });
     } catch (ex) {
+      console.error(ex);
+
       set((state) => {
         return {
           ...state,

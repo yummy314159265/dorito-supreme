@@ -4,7 +4,6 @@ import { StateStatus } from "../types/utils/StateStatus";
 import { supabaseClient } from "../api/supabaseClient";
 import { CreateChannelDto } from "../types/dtos/createChannelDto";
 import { JoinChannelDto } from "../types/dtos/joinChannelDto";
-import { ChannelProfile } from "../types/models/ChannelProfile";
 
 export interface ChannelState {
   currentChannel: Channel | null;
@@ -217,10 +216,20 @@ export const useChannelStore = create<ChannelState>((set) => ({
 
       const channels = data.map((d) => d.channels).filter((d) => d !== null);
 
+      console.log(channels);
+
       set((state) => {
+        const joinedChannelIds = state.joinedChannels.map((jc) => jc.id);
+
         return {
           ...state,
-          joinedChannels: [...state.joinedChannels, ...(channels as Channel[])],
+          joinedChannels: [
+            ...state.joinedChannels,
+            // this filters out channels that are already on the list
+            ...(channels as Channel[]).filter(
+              (ch) => !joinedChannelIds.includes(ch.id)
+            )
+          ],
           statuses: {
             ...state.statuses,
             ["getJoinedChannels"]: "success"
