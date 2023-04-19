@@ -215,12 +215,12 @@ export const useChannelStore = create<ChannelState>((set) => ({
         throw new Error("Data is null");
       }
 
-      console.log(data);
+      const channels = data.map((d) => d.channels).filter((d) => d !== null);
 
       set((state) => {
         return {
           ...state,
-          joinedChannels: [...state.joinedChannels],
+          joinedChannels: [...state.joinedChannels, ...(channels as Channel[])],
           statuses: {
             ...state.statuses,
             ["getJoinedChannels"]: "success"
