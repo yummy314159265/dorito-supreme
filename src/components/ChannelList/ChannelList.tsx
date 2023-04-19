@@ -7,14 +7,17 @@ export const ChannelList: FC = () => {
   const getJoinedChannels = useChannelStore((state) => state.getJoinedChannels);
   const allChannels = useChannelStore((state) => state.allChannels);
   const joinedChannels = useChannelStore((state) => state.joinedChannels);
+  const statuses = useChannelStore((state) => state.statuses);
 
   useEffect(() => {
-    getJoinedChannels();
+    if (statuses.getJoinedChannels === "pending") {
+      getJoinedChannels();
+    }
   }, []);
 
   return (
     <>
-      <h3>All Channels</h3>
+      <h3>Joined Channels</h3>
       <ul>
         {joinedChannels.map((channel) => (
           <li key={channel.id}>

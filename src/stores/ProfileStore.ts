@@ -4,7 +4,7 @@ import { supabaseClient } from "../api/supabaseClient";
 import { StateStatus } from "../types/utils/StateStatus";
 
 export interface ProfileState {
-  profile: Profile | null;
+  profiles: Profile[];
   status: StateStatus;
   error: string | null;
   getProfile: (id: string) => void;
@@ -12,14 +12,14 @@ export interface ProfileState {
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
-  profile: null,
+  profiles: Array<Profile>(),
   status: "pending",
   error: null,
   getProfile: async (id) => {
     set((state) => {
       return {
         ...state,
-        profile: null,
+        profiles: Array<Profile>(),
         status: "loading",
         error: null
       };
@@ -35,12 +35,15 @@ export const useProfileStore = create<ProfileState>((set) => ({
         throw new Error("Error retrieving profile: " + error.message);
       }
 
-      const profile = (data as Profile[])[0];
+      const profile = data[0];
 
       set((state) => {
         return {
           ...state,
-          profile,
+          profiles: [
+            ...state.profiles,
+            profile
+          ],
           status: "success",
           error: null
         };
