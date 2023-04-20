@@ -17,13 +17,14 @@ export const Home: FC = () => {
   );
   const authenticated = useAuthStore((state) => state.authenticated);
   const currentChannel = useChannelStore((state) => state.currentChannel);
+  const searchStatus = useChannelStore((state) => state.statuses)[
+    "searchChannels"
+  ];
 
   useEffect(() => {
     if (userId === null) {
       return;
     }
-
-    console.log("checking for rerenders");
 
     getProfile(userId);
   }, [userId]);
@@ -38,6 +39,7 @@ export const Home: FC = () => {
       <div className="border-b"></div>
       <ChannelSearchForm />
       <ChannelSearchList userId={userId} />
+      {searchStatus === "loading" && <div>Loading...</div>}
     </>
   );
 };

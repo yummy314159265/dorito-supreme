@@ -19,7 +19,7 @@ export const useProfileStore = create<ProfileState>((set) => ({
     set((state) => {
       return {
         ...state,
-        profiles: Array<Profile>(),
+        profiles: [...state.profiles],
         status: "loading",
         error: null
       };
