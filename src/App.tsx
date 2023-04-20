@@ -16,7 +16,7 @@ export const App: FC = (): JSX.Element => {
   return (
     <div className="h-screen flex flex-col">
       <Navbar />
-      <div className="flex-grow pl-2 pr-2">
+      <div className="flex-grow max-h-full pl-2 pr-2 overflow-y-scroll">
         <Outlet></Outlet>
       </div>
     </div>

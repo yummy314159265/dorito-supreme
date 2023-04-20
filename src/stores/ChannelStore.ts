@@ -10,6 +10,7 @@ export interface ChannelState {
   joinedChannels: Channel[];
   ownedChannels: Channel[];
   allChannels: Channel[];
+  searchedChannels: Channel[];
   statuses: Record<string, StateStatus>;
   errors: Record<string, string | null>;
   createChannel: (request: CreateChannelDto) => void;
@@ -18,6 +19,7 @@ export interface ChannelState {
   getJoinedChannels: () => void;
   getOwnedChannels: () => void;
   getAllChannels: () => void;
+  searchChannels: (channelName: string) => void;
   resetChannels: () => void;
 }
 
@@ -26,6 +28,7 @@ export const useChannelStore = create<ChannelState>((set) => ({
   joinedChannels: Array<Channel>(),
   ownedChannels: Array<Channel>(),
   allChannels: Array<Channel>(),
+  searchedChannels: Array<Channel>(),
   statuses: {
     createChannel: "pending",
     joinChannel: "pending",
@@ -380,6 +383,28 @@ export const useChannelStore = create<ChannelState>((set) => ({
         };
       });
     }
+  },
+  searchChannels: async (channelName) => {
+    set((state) => {
+      return {
+        ...state,
+        statuses: {
+          ...state.statuses,
+          searchChannels: "loading"
+        },
+        errors: {
+          ...state.errors,
+          searchChannels: null
+        }
+      };
+    });
+
+    try {
+      const { data, error } = await supabaseClient
+        .from("channels")
+        .select()
+        .textSearch("name", channelName);
+    } catch (ex) {}
   },
   resetChannels: () => {
     set((state) => {

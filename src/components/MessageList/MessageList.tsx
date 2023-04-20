@@ -28,12 +28,15 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
   }
 
   return (
-    <ul>
-      {messages?.[channel.id]?.map((message) => (
-        <li key={message.id}>
-          <Message message={message} />
-        </li>
-      ))}
-    </ul>
+    <>
+      <h3 className="text-2xl">Messages</h3>
+      <ul>
+        {messages?.[channel.id]?.map((message) => (
+          <li key={message.id}>
+            <Message message={message} />
+          </li>
+        ))}
+      </ul>
+    </>
   );
 };

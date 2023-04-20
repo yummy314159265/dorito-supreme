@@ -16,8 +16,8 @@ export const ChannelList: FC = () => {
   }, []);
 
   return (
-    <>
-      <h3>Joined Channels</h3>
+    <div className="border-b">
+      <h3 className="text-2xl">Joined Channels</h3>
       <ul>
         {joinedChannels.map((channel) => (
           <li key={channel.id}>
@@ -25,6 +25,6 @@ export const ChannelList: FC = () => {
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 };
