@@ -14,14 +14,20 @@ export const ChannelSearchList: FC<ChannelSearchListProps> = ({ userId }) => {
   }
 
   return (
-    <ul>
-      {searchedChannels?.map((channel) => {
-        return (
-          <li key={channel.id}>
-            <ChannelSearchInfo channel={channel} userId={userId} />
-          </li>
-        );
-      })}
-    </ul>
+    <>
+      {searchedChannels.length === 0 ? (
+        <div>No channels found</div>
+      ) : (
+        <ul>
+          {searchedChannels?.map((channel) => {
+            return (
+              <li key={channel.id}>
+                <ChannelSearchInfo channel={channel} userId={userId} />
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </>
   );
 };

@@ -2,18 +2,22 @@ import { create } from "zustand";
 import { Message } from "../types/models/Message";
 import { StateStatus } from "../types/utils/StateStatus";
 import { supabaseClient } from "../api/supabaseClient";
+import { RealtimeChannel } from "@supabase/supabase-js";
 
 export interface MessageState {
   messages: Record<string, Message[]>;
+  currentSubscription: RealtimeChannel | null;
   statuses: Record<string, StateStatus>;
   errors: Record<string, string | null>;
   getMessages: (channel_id: string) => void;
   sendMessage: (message: Partial<Message>) => void;
+  subscribeToMessages: (channelId: string) => void;
   resetMessages: () => void;
 }
 
 export const useMessageStore = create<MessageState>((set) => ({
   messages: {},
+  currentSubscription: null,
   statuses: {},
   errors: {},
   getMessages: async (channel_id) => {
@@ -128,13 +132,6 @@ export const useMessageStore = create<MessageState>((set) => ({
       set((state) => {
         return {
           ...state,
-          messages: {
-            ...state.messages,
-            [data[0].channel_id]: [
-              ...state.messages[data[0].channel_id],
-              ...data
-            ]
-          },
           statuses: {
             ...state.statuses,
             sendMessage: "success"
@@ -166,11 +163,87 @@ export const useMessageStore = create<MessageState>((set) => ({
       });
     }
   },
+  subscribeToMessages: (channelId) => {
+    set((state) => {
+      return {
+        ...state,
+        statuses: {
+          ...state.statuses,
+          subscribeToMessages: "loading"
+        },
+        errors: {
+          ...state.errors,
+          subscribeToMessages: null
+        }
+      };
+    });
+
+    try {
+      const messageChannel = supabaseClient.channel(`message-${channelId}`);
+
+      const sub = messageChannel
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "messages" },
+          (payload) => {
+            set((state) => {
+              return {
+                ...state,
+                messages: {
+                  ...state.messages,
+                  [channelId]: [
+                    ...state.messages[channelId],
+                    payload.new as Message
+                  ]
+                }
+              };
+            });
+          }
+        )
+        .subscribe();
+
+      set((state) => {
+        return {
+          ...state,
+          currentSubscription: sub,
+          statuses: {
+            ...state.statuses,
+            subscribeToMessages: "success"
+          },
+          errors: {
+            ...state.errors,
+            subscribeToMessages: null
+          }
+        };
+      });
+    } catch (ex) {
+      console.error(ex);
+
+      set((state) => {
+        return {
+          ...state,
+          currentSubscription: null,
+          statuses: {
+            ...state.statuses,
+            subscribeToMessages: "error"
+          },
+          errors: {
+            ...state.errors,
+            subscribeToMessages:
+              (ex as Error)?.message ??
+              (ex as object).toString() ??
+              `Error subscribing to channel ID ${channelId}`
+          }
+        };
+      });
+    }
+  },
   resetMessages: () => {
     set((state) => {
       return {
         ...state,
         messages: {},
+        currentSubscription: null,
         statuses: {},
         errors: {}
       };

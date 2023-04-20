@@ -5,6 +5,7 @@ import { Input } from "../../styled/Input";
 
 export const ChannelSearchForm: FC = () => {
   const searchChannels = useChannelStore((state) => state.searchChannels);
+
   const {
     register,
     handleSubmit,

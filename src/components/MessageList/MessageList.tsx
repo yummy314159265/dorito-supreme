@@ -11,6 +11,9 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
   const messages = useMessageStore((state) => state.messages);
   const getMessages = useMessageStore((state) => state.getMessages);
   const statuses = useMessageStore((state) => state.statuses);
+  const subscribeToMessages = useMessageStore(
+    (state) => state.subscribeToMessages
+  );
 
   useEffect(() => {
     if (
@@ -21,6 +24,8 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
     }
 
     getMessages(channel.id);
+
+    subscribeToMessages(channel.id);
   }, [channel]);
 
   if (channel === null) {
@@ -29,7 +34,7 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
 
   return (
     <>
-      <h3 className="text-2xl">Messages</h3>
+      <h3 className="text-2xl">{channel.name}</h3>
       <ul>
         {messages?.[channel.id]?.map((message) => (
           <li key={message.id}>

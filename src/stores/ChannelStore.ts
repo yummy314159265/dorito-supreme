@@ -162,7 +162,7 @@ export const useChannelStore = create<ChannelState>((set) => ({
       set((state) => {
         return {
           ...state,
-          joinedChannels: [...state.ownedChannels, ...(channels as Channel[])],
+          joinedChannels: [...state.joinedChannels, ...(channels as Channel[])],
           statuses: {
             ...state.statuses,
             ["joinChannel"]: "success"
@@ -415,12 +415,15 @@ export const useChannelStore = create<ChannelState>((set) => ({
     });
 
     try {
+      const searchQuery = `'${channelName}'`;
+
       const { data, error } = await supabaseClient
         .from("channels")
         .select()
-        .textSearch("name", channelName);
-
-      console.log(data);
+        .textSearch("name", searchQuery, {
+          config: "english",
+          type: "plain"
+        });
 
       if (error !== null) {
         throw new Error("Error searching channels: " + error.message);
