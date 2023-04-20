@@ -5,13 +5,16 @@ import { CreateChannelForm } from "../../components/CreateChannelForm/CreateChan
 import { ChannelList } from "../../components/ChannelList/ChannelList";
 import { useChannelStore } from "../../stores/ChannelStore";
 import { MessageList } from "../../components/MessageList/MessageList";
+import { SendMessageForm } from "../../components/SendMessageForm/SendMessageForm";
 
 export const Home: FC = () => {
   const getProfile = useProfileStore((state) => state.getProfile);
   const userId = useAuthStore((state) => state.userId);
-  const profile = useProfileStore((state) => state.profiles).find(p => p.id === userId);
+  const profile = useProfileStore((state) => state.profiles).find(
+    (p) => p.id === userId
+  );
   const authenticated = useAuthStore((state) => state.authenticated);
-  const currentChannel = useChannelStore(state => state.currentChannel);
+  const currentChannel = useChannelStore((state) => state.currentChannel);
 
   useEffect(() => {
     if (userId === null) {
@@ -27,6 +30,7 @@ export const Home: FC = () => {
       {authenticated && <CreateChannelForm />}
       <ChannelList />
       <MessageList channel={currentChannel} />
+      <SendMessageForm userId={userId ?? ""} channel={currentChannel} />
     </>
   );
 };
