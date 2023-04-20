@@ -35,14 +35,14 @@ export const useProfileStore = create<ProfileState>((set) => ({
         throw new Error("Error retrieving profile: " + error.message);
       }
 
-      const profile = data[0];
-
       set((state) => {
+        const profileIds = state.profiles?.map((p) => p.id) ?? [];
+
         return {
           ...state,
           profiles: [
             ...state.profiles,
-            profile
+            ...data.filter((d) => !profileIds.includes(d.id))
           ],
           status: "success",
           error: null

@@ -6,6 +6,8 @@ import { ChannelList } from "../../components/ChannelList/ChannelList";
 import { useChannelStore } from "../../stores/ChannelStore";
 import { MessageList } from "../../components/MessageList/MessageList";
 import { SendMessageForm } from "../../components/SendMessageForm/SendMessageForm";
+import { ChannelSearchForm } from "../../components/ChannelSearchForm/ChannelSearchForm";
+import { ChannelSearchList } from "../../components/ChannelSearchList/ChannelSearchList";
 
 export const Home: FC = () => {
   const getProfile = useProfileStore((state) => state.getProfile);
@@ -34,6 +36,8 @@ export const Home: FC = () => {
       <MessageList channel={currentChannel} />
       <SendMessageForm userId={userId} channel={currentChannel} />
       <div className="border-b"></div>
+      <ChannelSearchForm />
+      <ChannelSearchList userId={userId} />
     </>
   );
 };

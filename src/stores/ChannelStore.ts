@@ -136,7 +136,7 @@ export const useChannelStore = create<ChannelState>((set) => ({
 
     try {
       const { data, error } = await supabaseClient
-        .from("channel_profiles")
+        .from("joined_channels")
         .insert({ channel_id, profile_id })
         .select();
 
@@ -144,10 +144,25 @@ export const useChannelStore = create<ChannelState>((set) => ({
         throw new Error("Error joining channel: " + error.message);
       }
 
+      const channels = await Promise.all(
+        data
+          .map(async (d) => {
+            const channel = (
+              await supabaseClient
+                .from("channels")
+                .select()
+                .eq("id", d.channel_id)
+            ).data?.[0];
+
+            return channel;
+          })
+          .filter((d) => d !== null && d !== undefined)
+      );
+
       set((state) => {
         return {
           ...state,
-          joinedChannels: [...state.ownedChannels, ...(data as Channel[])],
+          joinedChannels: [...state.ownedChannels, ...(channels as Channel[])],
           statuses: {
             ...state.statuses,
             ["joinChannel"]: "success"
@@ -404,7 +419,48 @@ export const useChannelStore = create<ChannelState>((set) => ({
         .from("channels")
         .select()
         .textSearch("name", channelName);
-    } catch (ex) {}
+
+      console.log(data);
+
+      if (error !== null) {
+        throw new Error("Error searching channels: " + error.message);
+      }
+
+      set((state) => {
+        return {
+          ...state,
+          searchedChannels: [...data],
+          statuses: {
+            ...state.statuses,
+            searchChannels: "success"
+          },
+          errors: {
+            ...state.errors,
+            searchChannels: null
+          }
+        };
+      });
+    } catch (ex) {
+      console.error(ex);
+
+      set((state) => {
+        return {
+          ...state,
+          searchedChannels: Array<Channel>(),
+          statuses: {
+            ...state.statuses,
+            searchChannels: "error"
+          },
+          errors: {
+            ...state.errors,
+            searchChannels:
+              (ex as Error)?.message ??
+              (ex as object)?.toString() ??
+              "Error searching channels"
+          }
+        };
+      });
+    }
   },
   resetChannels: () => {
     set((state) => {
