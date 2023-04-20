@@ -7,7 +7,7 @@ import { Input } from "../../styled/Input";
 
 export interface SendMessageFormProps {
   channel: Channel | null;
-  userId: string;
+  userId: string | null;
 }
 
 export const SendMessageForm: FC<SendMessageFormProps> = ({
@@ -22,11 +22,9 @@ export const SendMessageForm: FC<SendMessageFormProps> = ({
   } = useForm();
 
   const onSubmit = (data: FieldValues) => {
-    if (channel === null) {
+    if (channel === null || userId === null) {
       return;
     }
-
-    console.log(channel.id, userId, data);
 
     const message: Partial<Message> = {
       channel_id: channel.id,
@@ -41,6 +39,10 @@ export const SendMessageForm: FC<SendMessageFormProps> = ({
     return <div>Please select a channel or be gay</div>;
   }
 
+  if (userId === null) {
+    return <div>Please log in</div>;
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <label htmlFor="sendMessage">Send Message</label>
@@ -50,6 +52,7 @@ export const SendMessageForm: FC<SendMessageFormProps> = ({
         {...register("content", { required: true })}
       />
       <button type="submit">Send</button>
+      {errors["required"] && <span>Required</span>}
     </form>
   );
 };

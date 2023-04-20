@@ -21,6 +21,8 @@ export const Home: FC = () => {
       return;
     }
 
+    console.log("checking for rerenders");
+
     getProfile(userId);
   }, [userId]);
 
@@ -30,7 +32,8 @@ export const Home: FC = () => {
       {authenticated && <CreateChannelForm />}
       <ChannelList />
       <MessageList channel={currentChannel} />
-      <SendMessageForm userId={userId ?? ""} channel={currentChannel} />
+      <SendMessageForm userId={userId} channel={currentChannel} />
+      <div className="border-b"></div>
     </>
   );
 };
