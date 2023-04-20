@@ -10,22 +10,22 @@ export interface MessageListProps {
 export const MessageList: FC<MessageListProps> = ({ channel }) => {
   const messages = useMessageStore((state) => state.messages);
   const getMessages = useMessageStore((state) => state.getMessages);
+  const statuses = useMessageStore((state) => state.statuses);
 
   useEffect(() => {
-    if (channel === null) {
+    if (
+      channel === null ||
+      (statuses[channel.id] !== undefined && statuses[channel.id] !== "pending")
+    ) {
       return;
     }
 
     getMessages(channel.id);
   }, [channel]);
 
-  console.log(channel?.id);
-
   if (channel === null) {
     return <div>No channel selected</div>;
   }
-
-  console.log(messages);
 
   return (
     <ul>
