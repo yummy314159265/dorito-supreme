@@ -216,8 +216,6 @@ export const useChannelStore = create<ChannelState>((set) => ({
 
       const channels = data.map((d) => d.channels).filter((d) => d !== null);
 
-      console.log(channels);
-
       set((state) => {
         const joinedChannelIds = state.joinedChannels.map((jc) => jc.id);
 
