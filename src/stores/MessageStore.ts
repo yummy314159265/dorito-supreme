@@ -47,16 +47,21 @@ export const useMessageStore = create<MessageState>((set) => ({
         );
       }
 
-      set((state) => {
-        const messageIds = state.messages.channel_id?.map((m) => m.id) ?? [];
+      const messageIds =
+        useMessageStore.getState().messages[channel_id]?.map((m) => m.id) ?? [];
 
+      const duplicateMessagesRemoved = data.filter(
+        (d) => !messageIds.includes(d.id)
+      );
+
+      set((state) => {
         return {
           ...state,
           messages: {
             ...state.messages,
             [channel_id]: [
-              ...(state.messages.channel_id ?? []),
-              ...data.filter((d) => !messageIds.includes(d.id))
+              ...(state.messages[channel_id] ?? []),
+              ...duplicateMessagesRemoved
             ]
           },
           statuses: {
@@ -116,7 +121,7 @@ export const useMessageStore = create<MessageState>((set) => ({
         );
       }
 
-      const { error } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from("messages")
         .insert({
           channel_id: message.channel_id,
@@ -127,6 +132,16 @@ export const useMessageStore = create<MessageState>((set) => ({
 
       if (error !== null) {
         throw new Error("Error sending message: " + error.message);
+      }
+
+      const sub = useMessageStore.getState().currentSubscription;
+
+      if (sub !== null) {
+        sub.send({
+          type: "broadcast",
+          event: "send-message",
+          payload: data[0]
+        });
       }
 
       set((state) => {
@@ -163,10 +178,11 @@ export const useMessageStore = create<MessageState>((set) => ({
       });
     }
   },
-  subscribeToMessages: (channelId) => {
+  subscribeToMessages: async (channelId) => {
     set((state) => {
       return {
         ...state,
+        currentSubscription: null,
         statuses: {
           ...state.statuses,
           subscribeToMessages: "loading"
@@ -179,43 +195,63 @@ export const useMessageStore = create<MessageState>((set) => ({
     });
 
     try {
-      const messageChannel = supabaseClient.channel(`message-${channelId}`);
+      const messageChannel = supabaseClient.channel(`message-${channelId}`, {
+        config: {
+          broadcast: {
+            self: true
+          }
+        }
+      });
 
       const sub = messageChannel
-        .on(
-          "postgres_changes",
-          { event: "*", schema: "public", table: "messages" },
-          (payload) => {
+        .on("broadcast", { event: "send-message" }, ({ payload }) => {
+          set((state) => {
+            return {
+              ...state,
+              messages: {
+                ...state.messages,
+                [channelId]: [...state.messages[channelId], { ...payload }]
+              }
+            };
+          });
+        })
+        .subscribe((status, err) => {
+          if (status === "SUBSCRIBED") {
             set((state) => {
               return {
                 ...state,
-                messages: {
-                  ...state.messages,
-                  [channelId]: [
-                    ...state.messages[channelId],
-                    payload.new as Message
-                  ]
+                currentSubscription: sub,
+                statuses: {
+                  ...state.statuses,
+                  subscribeToMessages: "success"
+                },
+                errors: {
+                  ...state.errors,
+                  subscribeToMessages: null
                 }
               };
             });
           }
-        )
-        .subscribe();
 
-      set((state) => {
-        return {
-          ...state,
-          currentSubscription: sub,
-          statuses: {
-            ...state.statuses,
-            subscribeToMessages: "success"
-          },
-          errors: {
-            ...state.errors,
-            subscribeToMessages: null
+          if (err !== undefined) {
+            console.error(err);
+
+            set((state) => {
+              return {
+                ...state,
+                currentSubscription: null,
+                statuses: {
+                  ...state.statuses,
+                  subscribeToMessages: "error"
+                },
+                errors: {
+                  ...state.errors,
+                  subscribeToMessages: `Error subscribing to channel ID ${channelId}`
+                }
+              };
+            });
           }
-        };
-      });
+        });
     } catch (ex) {
       console.error(ex);
 

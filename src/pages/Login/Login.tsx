@@ -3,8 +3,8 @@ import { useAuthStore } from "../../stores/AuthStore";
 import { LoginForm } from "../../components/LoginForm/LoginForm";
 
 export const Login: FC = () => {
-  const loginStatus = useAuthStore((state) => state.loginStatus);
-  const loginError = useAuthStore((state) => state.loginError);
+  const loginStatus = useAuthStore((state) => state.statuses)?.login;
+  const loginError = useAuthStore((state) => state.errors)?.login;
   const authenticated = useAuthStore((state) => state.authenticated);
 
   useEffect(() => {
