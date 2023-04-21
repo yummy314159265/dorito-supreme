@@ -19,10 +19,7 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
   );
 
   useEffect(() => {
-    if (
-      channel === null ||
-      (statuses[channel.id] !== undefined && statuses[channel.id] !== "pending")
-    ) {
+    if (channel === null) {
       return;
     }
 
