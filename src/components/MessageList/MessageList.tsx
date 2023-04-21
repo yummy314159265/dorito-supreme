@@ -14,6 +14,9 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
   const subscribeToMessages = useMessageStore(
     (state) => state.subscribeToMessages
   );
+  const currentSubscription = useMessageStore(
+    (state) => state.currentSubscription
+  );
 
   useEffect(() => {
     if (
@@ -26,6 +29,13 @@ export const MessageList: FC<MessageListProps> = ({ channel }) => {
     getMessages(channel.id);
 
     subscribeToMessages(channel.id);
+
+    if (currentSubscription !== null) {
+      return () => {
+        console.log(`unsubscribing from ${channel?.id}`);
+        currentSubscription.unsubscribe();
+      };
+    }
   }, [channel]);
 
   if (channel === null) {

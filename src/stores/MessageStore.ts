@@ -116,7 +116,7 @@ export const useMessageStore = create<MessageState>((set) => ({
         );
       }
 
-      const { data, error } = await supabaseClient
+      const { error } = await supabaseClient
         .from("messages")
         .insert({
           channel_id: message.channel_id,
