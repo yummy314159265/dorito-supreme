@@ -47,18 +47,20 @@ export const useMessageStore = create<MessageState>((set) => ({
         );
       }
 
-      set((state) => {
-        const messageIds = state.messages.channel_id?.map((m) => m.id) ?? [];
-        const duplicateMessagesRemoved = data.filter(
-          (d) => !messageIds.includes(d.id)
-        );
+      const messageIds =
+        useMessageStore.getState().messages[channel_id]?.map((m) => m.id) ?? [];
 
+      const duplicateMessagesRemoved = data.filter(
+        (d) => !messageIds.includes(d.id)
+      );
+
+      set((state) => {
         return {
           ...state,
           messages: {
             ...state.messages,
             [channel_id]: [
-              ...(state.messages.channel_id ?? []),
+              ...(state.messages[channel_id] ?? []),
               ...duplicateMessagesRemoved
             ]
           },
@@ -134,8 +136,6 @@ export const useMessageStore = create<MessageState>((set) => ({
 
       const sub = useMessageStore.getState().currentSubscription;
 
-      console.log(data);
-
       if (sub !== null) {
         sub.send({
           type: "broadcast",
@@ -195,7 +195,13 @@ export const useMessageStore = create<MessageState>((set) => ({
     });
 
     try {
-      const messageChannel = supabaseClient.channel(`message-${channelId}`);
+      const messageChannel = supabaseClient.channel(`message-${channelId}`, {
+        config: {
+          broadcast: {
+            self: true
+          }
+        }
+      });
 
       const sub = messageChannel
         .on("broadcast", { event: "send-message" }, ({ payload }) => {
@@ -204,7 +210,7 @@ export const useMessageStore = create<MessageState>((set) => ({
               ...state,
               messages: {
                 ...state.messages,
-                [channelId]: [...state.messages[channelId], payload]
+                [channelId]: [...state.messages[channelId], { ...payload }]
               }
             };
           });
