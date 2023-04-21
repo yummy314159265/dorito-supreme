@@ -10,7 +10,6 @@ export interface MessageListProps {
 export const MessageList: FC<MessageListProps> = ({ channel }) => {
   const messages = useMessageStore((state) => state.messages);
   const getMessages = useMessageStore((state) => state.getMessages);
-  const statuses = useMessageStore((state) => state.statuses);
   const subscribeToMessages = useMessageStore(
     (state) => state.subscribeToMessages
   );

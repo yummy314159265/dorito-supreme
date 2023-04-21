@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { useAuthStore } from "../../stores/AuthStore";
 import { FieldValues, useForm } from "react-hook-form";
-import { Input } from "../../styled/Input";
+import { Input } from "../../styled/Input/Input";
 
 export const SignupForm: FC = () => {
   const createUser = useAuthStore((state) => state.createUser);

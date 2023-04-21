@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { FieldValues, useForm } from "react-hook-form";
 import { useChannelStore } from "../../stores/ChannelStore";
-import { Input } from "../../styled/Input";
+import { Input } from "../../styled/Input/Input";
 
 export const ChannelSearchForm: FC = () => {
   const searchChannels = useChannelStore((state) => state.searchChannels);
