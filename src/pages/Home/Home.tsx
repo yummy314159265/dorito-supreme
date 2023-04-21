@@ -17,9 +17,7 @@ export const Home: FC = () => {
   );
   const authenticated = useAuthStore((state) => state.authenticated);
   const currentChannel = useChannelStore((state) => state.currentChannel);
-  const searchStatus = useChannelStore((state) => state.statuses)[
-    "searchChannels"
-  ];
+  const searchStatus = useChannelStore((state) => state.statuses).searchChannels
 
   useEffect(() => {
     if (userId === null) {

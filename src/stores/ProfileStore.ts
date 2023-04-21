@@ -5,23 +5,35 @@ import { StateStatus } from "../types/utils/StateStatus";
 
 export interface ProfileState {
   profiles: Profile[];
-  status: StateStatus;
-  error: string | null;
+  statuses: Record<string, StateStatus>;
+  errors: Record<string, string | null>;
   getProfile: (id: string) => void;
   resetProfile: () => void;
 }
 
 export const useProfileStore = create<ProfileState>((set) => ({
   profiles: Array<Profile>(),
-  status: "pending",
-  error: null,
+  statuses: {
+    getProfile: "pending"
+  },
+  errors: {
+    getProfile: null
+  },
   getProfile: async (id) => {
     set((state) => {
       return {
         ...state,
         profiles: [...state.profiles],
-        status: "loading",
-        error: null
+        statuses: {
+          ...state.statuses,
+          [id]: "loading",
+          getProfile: "loading"
+        },
+        errors: {
+          ...state.errors,
+          [id]: null,
+          getProfile: null
+        }
       };
     });
 
@@ -35,17 +47,27 @@ export const useProfileStore = create<ProfileState>((set) => ({
         throw new Error("Error retrieving profile: " + error.message);
       }
 
-      set((state) => {
-        const profileIds = state.profiles?.map((p) => p.id) ?? [];
+      const profileIds =
+        useProfileStore.getState().profiles.map((p) => p.id) ?? [];
 
+      const duplicateProfilesRemoved = data.filter(
+        (d) => !profileIds.includes(d.id)
+      );
+
+      set((state) => {
         return {
           ...state,
-          profiles: [
-            ...state.profiles,
-            ...data.filter((d) => !profileIds.includes(d.id))
-          ],
-          status: "success",
-          error: null
+          profiles: [...state.profiles, ...duplicateProfilesRemoved],
+          statuses: {
+            ...state.statuses,
+            [id]: "success",
+            getProfile: "success"
+          },
+          error: {
+            ...state.errors,
+            [id]: null,
+            getProfile: null
+          }
         };
       });
     } catch (ex: unknown) {
@@ -54,11 +76,22 @@ export const useProfileStore = create<ProfileState>((set) => ({
       set((state) => {
         return {
           ...state,
-          status: "error",
-          error:
-            (ex as Error).message ??
-            (ex as object).toString() ??
-            "Error retrieving profile"
+          statuses: {
+            ...state.statuses,
+            [id]: "error",
+            getProfile: "error"
+          },
+          errors: {
+            ...state.errors,
+            [id]:
+              (ex as Error).message ??
+              (ex as object).toString() ??
+              "Error retrieving profile",
+            getProfile:
+              (ex as Error).message ??
+              (ex as object).toString() ??
+              "Error retrieving profile"
+          }
         };
       });
     }

@@ -8,10 +8,8 @@ export interface AuthState {
   authenticated: boolean;
   email: string | null;
   userId: string | null;
-  loginStatus: StateStatus;
-  loginError: string | null;
-  signupStatus: StateStatus;
-  signupError: string | null;
+  statuses: Record<string, StateStatus>;
+  errors: Record<string, string | null>;
   createUser: (request: CreateUserDto) => void;
   login: (request: LoginDto) => void;
   checkAuthentication: () => void;
@@ -23,10 +21,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   authenticated: false,
   email: null,
   userId: null,
-  loginStatus: "pending",
-  loginError: null,
-  signupStatus: "pending",
-  signupError: null,
+  statuses: {
+    createUser: "pending",
+    login: "pending",
+    checkAuthentication: "pending",
+    logout: "pending"
+  },
+  errors: {
+    createUser: null,
+    login: null,
+    checkAuthentication: null,
+    logout: null
+  },
   createUser: async ({ email, password, username }) => {
     set((state) => {
       return {
@@ -34,8 +40,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         authenticated: false,
         email: null,
         userId: null,
-        signupStatus: "loading",
-        signupError: null
+        statuses: {
+          ...state.statuses,
+          createUser: "loading"
+        },
+        errors: {
+          ...state.errors,
+          createUser: null
+        }
       };
     });
 
@@ -57,8 +69,14 @@ export const useAuthStore = create<AuthState>((set) => ({
       set((state) => {
         return {
           ...state,
-          signupStatus: "success",
-          signupError: null
+          statuses: {
+            ...state.statuses,
+            createUser: "success"
+          },
+          errors: {
+            ...state.errors,
+            createUser: null
+          }
         };
       });
     } catch (ex: unknown) {
@@ -70,11 +88,17 @@ export const useAuthStore = create<AuthState>((set) => ({
           authenticated: false,
           email: null,
           userId: null,
-          signupStatus: "error",
-          signupError:
-            (ex as Error)?.message ??
-            (ex as object).toString() ??
-            "Error signing up"
+          statuses: {
+            ...state.statuses,
+            createUser: "error"
+          },
+          errors: {
+            ...state.errors,
+            createUser:
+              (ex as Error)?.message ??
+              (ex as object).toString() ??
+              "Error signing up"
+          }
         };
       });
     }
@@ -86,8 +110,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         authenticated: false,
         email: null,
         userId: null,
-        loginStatus: "loading",
-        loginError: null
+        statuses: {
+          ...state.statuses,
+          login: "loading"
+        },
+        errors: {
+          ...state.errors,
+          login: null
+        }
       };
     });
 
@@ -107,8 +137,14 @@ export const useAuthStore = create<AuthState>((set) => ({
           authenticated: true,
           email: data.user?.email,
           userId: data.user?.id,
-          loginStatus: "success",
-          loginError: null
+          statuses: {
+            ...state.statuses,
+            login: "success"
+          },
+          errors: {
+            ...state.errors,
+            login: null
+          }
         };
       });
     } catch (ex: unknown) {
@@ -120,11 +156,17 @@ export const useAuthStore = create<AuthState>((set) => ({
           authenticated: false,
           email: null,
           userId: null,
-          loginStatus: "error",
-          loginError:
-            (ex as Error)?.message ??
-            (ex as object)?.toString() ??
-            "Error logging in"
+          statuses: {
+            ...state.statuses,
+            login: "error"
+          },
+          errors: {
+            ...state.errors,
+            login:
+              (ex as Error)?.message ??
+              (ex as object)?.toString() ??
+              "Error logging in"
+          }
         };
       });
     }
@@ -136,8 +178,14 @@ export const useAuthStore = create<AuthState>((set) => ({
         authenticated: false,
         email: null,
         userId: null,
-        loginStatus: "pending",
-        loginError: null
+        statuses: {
+          ...state.statuses,
+          checkAuthentication: "loading"
+        },
+        errors: {
+          ...state.errors,
+          checkAuthentication: null
+        }
       };
     });
 
@@ -154,8 +202,14 @@ export const useAuthStore = create<AuthState>((set) => ({
           authenticated: data.session?.user.id !== undefined,
           email: data.session?.user.email ?? null,
           userId: data.session?.user.id ?? null,
-          loginStatus: "success",
-          loginError: null
+          statuses: {
+            ...state.statuses,
+            checkAuthentication: "success"
+          },
+          errors: {
+            ...state.errors,
+            checkAuthentication: null
+          }
         };
       });
     } catch (ex: unknown) {
@@ -167,11 +221,17 @@ export const useAuthStore = create<AuthState>((set) => ({
           authenticated: false,
           email: null,
           userId: null,
-          loginStatus: "error",
-          loginError:
-            (ex as Error)?.message ??
-            (ex as object)?.toString() ??
-            "Error checking authentication"
+          statuses: {
+            ...state.statuses,
+            checkAuthentication: "error"
+          },
+          errors: {
+            ...state.errors,
+            checkAuthentication:
+              (ex as Error)?.message ??
+              (ex as object)?.toString() ??
+              "Error checking authentication"
+          }
         };
       });
     }
@@ -188,12 +248,22 @@ export const useAuthStore = create<AuthState>((set) => ({
         return {
           ...state,
           authenticated: false,
-          username: null,
+          email: null,
           userId: null,
-          loginStatus: "pending",
-          loginError: null,
-          signupStatus: "pending",
-          signupError: null
+          statuses: {
+            ...state.statuses,
+            createUser: "pending",
+            login: "pending",
+            checkAuthentication: "pending",
+            logout: "success"
+          },
+          errors: {
+            ...state.errors,
+            createUser: null,
+            login: null,
+            checkAuthentication: null,
+            logout: null
+          }
         };
       });
     } catch (ex: unknown) {
@@ -205,11 +275,14 @@ export const useAuthStore = create<AuthState>((set) => ({
           authenticated: false,
           username: null,
           userId: null,
-          loginStatus: "error",
-          loginError:
-            (ex as Error)?.message ??
-            (ex as object)?.toString() ??
-            "Error logging out"
+          statuses: {
+            ...state.statuses,
+            logout: "error"
+          },
+          errors: {
+            ...state.errors,
+            logout: null
+          }
         };
       });
     }
@@ -221,10 +294,20 @@ export const useAuthStore = create<AuthState>((set) => ({
         authenticated: false,
         username: null,
         userId: null,
-        loginStatus: "pending",
-        loginError: null,
-        signupStatus: "pending",
-        signupError: null
+        statuses: {
+          ...state.statuses,
+          createUser: "pending",
+          login: "pending",
+          checkAuthentication: "pending",
+          logout: "success"
+        },
+        errors: {
+          ...state.errors,
+          createUser: null,
+          login: null,
+          checkAuthentication: null,
+          logout: null
+        }
       };
     });
   }

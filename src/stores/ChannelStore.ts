@@ -49,13 +49,11 @@ export const useChannelStore = create<ChannelState>((set) => ({
         ...state,
         statuses: {
           ...state.statuses,
-          ["createChannel"]: "loading",
-          ["joinChannel"]: "loading"
+          ["createChannel"]: "loading"
         },
         errors: {
           ...state.statuses,
-          ["createChannel"]: null,
-          ["joinChannel"]: null
+          ["createChannel"]: null
         }
       };
     });
@@ -144,25 +142,48 @@ export const useChannelStore = create<ChannelState>((set) => ({
         throw new Error("Error joining channel: " + error.message);
       }
 
-      const channels = await Promise.all(
+      const joinedChannels = (await Promise.all(
         data
           .map(async (d) => {
-            const channel = (
-              await supabaseClient
+            try {
+              const { data, error } = await supabaseClient
                 .from("channels")
                 .select()
-                .eq("id", d.channel_id)
-            ).data?.[0];
+                .eq("id", d.channel_id);
 
-            return channel;
+              if (error !== null) {
+                throw new Error("Error joining channels: " + error.message);
+              }
+
+              return data?.[0];
+            } catch (ex) {
+              console.error(ex);
+
+              set((state) => {
+                return {
+                  ...state,
+                  statuses: {
+                    ...state.statuses,
+                    joinChannel: "error"
+                  },
+                  errors: {
+                    ...state.errors,
+                    joinChannel:
+                      (ex as Error)?.message ??
+                      (ex as object)?.toString() ??
+                      "Error joining channel"
+                  }
+                };
+              });
+            }
           })
           .filter((d) => d !== null && d !== undefined)
-      );
+      )) as Channel[];
 
       set((state) => {
         return {
           ...state,
-          joinedChannels: [...state.joinedChannels, ...(channels as Channel[])],
+          joinedChannels: [...state.joinedChannels, ...joinedChannels],
           statuses: {
             ...state.statuses,
             ["joinChannel"]: "success"
@@ -219,7 +240,6 @@ export const useChannelStore = create<ChannelState>((set) => ({
     });
 
     try {
-      // THIS NEEDS FIXED - RETRIEVE CHANNELS FROM CHANNEL PROFILES
       const { data, error } = await supabaseClient
         .from("joined_channels")
         .select(`channels(*)`);
@@ -232,19 +252,21 @@ export const useChannelStore = create<ChannelState>((set) => ({
         throw new Error("Data is null");
       }
 
-      const channels = data.map((d) => d.channels).filter((d) => d !== null);
+      const channels = data
+        .map((d) => d.channels)
+        .filter((d) => d !== null) as Channel[];
 
       set((state) => {
         const joinedChannelIds = state.joinedChannels.map((jc) => jc.id);
+        const duplicateChannelsRemoved = channels.filter(
+          (ch) => !joinedChannelIds.includes(ch.id)
+        );
 
         return {
           ...state,
           joinedChannels: [
             ...state.joinedChannels,
-            // this filters out channels that are already on the list
-            ...(channels as Channel[]).filter(
-              (ch) => !joinedChannelIds.includes(ch.id)
-            )
+            ...duplicateChannelsRemoved
           ],
           statuses: {
             ...state.statuses,
@@ -295,19 +317,27 @@ export const useChannelStore = create<ChannelState>((set) => ({
     });
 
     try {
-      const { data, error } = await supabaseClient
+      const userId = await supabaseClient.auth.getUser();
+
+      if (userId.error !== null) {
+        throw new Error("Error retrieving userId: " + userId.error.message);
+      }
+
+      const ownedChannels = await supabaseClient
         .from("channels")
         .select()
-        .eq(`owner_id`, (await supabaseClient.auth.getUser()).data.user?.id);
+        .eq(`owner_id`, userId.data.user.id);
 
-      if (error !== null) {
-        throw new Error("Error retrieving owned channels: " + error.message);
+      if (ownedChannels.error !== null) {
+        throw new Error(
+          "Error retrieving owned channels: " + ownedChannels.error.message
+        );
       }
 
       set((state) => {
         return {
           ...state,
-          ownedChannels: data as Channel[],
+          ownedChannels: ownedChannels.data as Channel[],
           statuses: {
             ...state.statuses,
             ["getOwnedChannels"]: "success"
