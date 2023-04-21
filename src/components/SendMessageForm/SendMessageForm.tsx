@@ -3,7 +3,7 @@ import { FieldValues, useForm } from "react-hook-form";
 import { useMessageStore } from "../../stores/MessageStore";
 import { Message } from "../../types/models/Message";
 import { Channel } from "../../types/models/Channel";
-import { Input } from "../../styled/Input";
+import { Input } from "../../styled/Input/Input";
 
 export interface SendMessageFormProps {
   channel: Channel | null;
