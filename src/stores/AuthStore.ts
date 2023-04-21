@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
 
     try {
-      const { data, error } = await supabaseClient.auth.signUp({
+      const { error } = await supabaseClient.auth.signUp({
         email,
         password,
         options: {
